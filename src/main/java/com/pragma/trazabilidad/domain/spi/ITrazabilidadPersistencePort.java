@@ -4,13 +4,23 @@
  */
 package com.pragma.trazabilidad.domain.spi;
 
+import com.pragma.trazabilidad.domain.model.EficienciaEmpleado;
+import com.pragma.trazabilidad.domain.model.EficienciaPedido;
 import com.pragma.trazabilidad.domain.model.Traza;
+
 import java.util.List;
+
 /**
  *
  * @author Juan Camilo
  */
 public interface ITrazabilidadPersistencePort {
+
     void guardar(Traza traza);
+
     List<Traza> buscarPorIdPedido(Long idPedido);
+
+    List<EficienciaPedido> calcularEficienciaPedidos();
+
+    List<EficienciaEmpleado> calcularEficienciaEmpleados();
 }

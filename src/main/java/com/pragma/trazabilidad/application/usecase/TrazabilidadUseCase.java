@@ -4,9 +4,13 @@
  */
 package com.pragma.trazabilidad.application.usecase;
 
+
 import com.pragma.trazabilidad.domain.api.ITrazabilidadServicePort;
+import com.pragma.trazabilidad.domain.model.EficienciaEmpleado;
+import com.pragma.trazabilidad.domain.model.EficienciaPedido;
 import com.pragma.trazabilidad.domain.model.Traza;
 import com.pragma.trazabilidad.domain.spi.ITrazabilidadPersistencePort;
+
 import java.util.List;
 /**
  *
@@ -28,5 +32,15 @@ public class TrazabilidadUseCase implements ITrazabilidadServicePort {
     @Override
     public List<Traza> obtenerTrazabilidadPorPedido(Long idPedido) {
         return persistencePort.buscarPorIdPedido(idPedido);
+    }
+
+    @Override
+    public List<EficienciaPedido> obtenerEficienciaPedidos() {
+        return persistencePort.calcularEficienciaPedidos();
+    }
+
+    @Override
+    public List<EficienciaEmpleado> obtenerEficienciaEmpleados() {
+        return persistencePort.calcularEficienciaEmpleados();
     }
 }

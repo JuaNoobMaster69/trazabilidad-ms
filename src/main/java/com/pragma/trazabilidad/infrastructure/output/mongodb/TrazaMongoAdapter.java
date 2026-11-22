@@ -56,9 +56,16 @@ public class TrazaMongoAdapter implements ITrazabilidadPersistencePort {
                 Aggregation.group("idPedido")
                         .min("fechaCambio").as("fechaInicio")
                         .max("fechaCambio").as("fechaFin")
-                        .first("idEmpleado").as("idEmpleado"),
-                Aggregation.project("idEmpleado")
+                        .sum(org.springframework.data.mongodb.core.aggregation.ConditionalOperators
+                                .when(Criteria.where("estadoNuevo").is("ENTREGADO"))
+                                .thenValueOf("$idEmpleado")
+                                .otherwise(0))
+                        .as("idEmpleadoEntregado"),
+                // Solo pedidos con traza ENTREGADO (idEmpleadoEntregado > 0 o != null)
+                Aggregation.match(Criteria.where("idEmpleadoEntregado").ne(0)),
+                Aggregation.project()
                         .and("_id").as("idPedido")
+                        .and("idEmpleadoEntregado").as("idEmpleado")
                         .andExpression("{$dateDiff: {startDate: '$fechaInicio', endDate: '$fechaFin', unit: 'second'}}")
                         .as("duracionSegundos")
         );
@@ -75,13 +82,24 @@ public class TrazaMongoAdapter implements ITrazabilidadPersistencePort {
                 Aggregation.group("idPedido")
                         .min("fechaCambio").as("fechaInicio")
                         .max("fechaCambio").as("fechaFin")
-                        .first("idEmpleado").as("idEmpleado"),
-                Aggregation.project("idEmpleado")
+                        .sum(org.springframework.data.mongodb.core.aggregation.ConditionalOperators
+                                .when(Criteria.where("estadoNuevo").is("ENTREGADO"))
+                                .thenValueOf("$idEmpleado")
+                                .otherwise(0))
+                        .as("idEmpleadoEntregado"),
+                Aggregation.match(Criteria.where("idEmpleadoEntregado").ne(0)),
+                Aggregation.project()
+                        .and("idEmpleadoEntregado").as("idEmpleado")
                         .andExpression("{$dateDiff: {startDate: '$fechaInicio', endDate: '$fechaFin', unit: 'second'}}")
                         .as("duracion"),
                 Aggregation.group("idEmpleado")
                         .avg("duracion").as("promedioSegundos")
                         .count().as("totalPedidos"),
+                // NUEVO: proyectar idEmpleado desde _id
+                Aggregation.project()
+                        .and("_id").as("idEmpleado")
+                        .and("promedioSegundos").as("promedioSegundos")
+                        .and("totalPedidos").as("totalPedidos"),
                 Aggregation.sort(Sort.Direction.ASC, "promedioSegundos")
         );
 
